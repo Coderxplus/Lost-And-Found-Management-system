@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lost and Found </title>
+</head>
+<body>
+    <h1>Lost and Found System</h1>
+    <h3>All Items</h3>
+
+    <a href="/add">Add Item</a>
+
+    <ul>
+        <li th:each="item : ${items}">
+            <a th:href="@{/item/{id}(id=${item.id})}">
+                <b th:text="${item.name}"></b>
+            </a>
+
+            <span th:text="${item.type}"></span>
+
+            <a th:href="@{/claim/{id}(id=${item.id})}">Claim</a>
+        </li>
+    </ul>
+
+</body>
+</html>

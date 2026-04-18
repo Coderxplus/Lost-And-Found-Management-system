@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Item Details</title>
+</head>
+<body>
+
+<h2>Item Details</h2>
+
+<p><b>Name:</b> <span th:text="${item.name}"></span></p>
+<p><b>Description:</b> <span th:text="${item.description}"></span></p>
+<p><b>Type:</b> <span th:text="${item.type}"></span></p>
+<p><b>Location:</b> <span th:text="${item.location}"></span></p>
+
+<hr/>
+
+<h3>Claims</h3>
+
+<div th:if="${#lists.isEmpty(claims)}">
+  <p>No claims yet.</p>
+</div>
+
+<ul>
+  <li th:each="claim : ${claims}">
+
+    <p>
+      <b>Message:</b>
+      <span th:text="${claim.message}"></span>
+    </p>
+
+    <p>
+      <b>Status:</b>
+      <span th:text="${claim.status}"></span>
+    </p>
+
+    <p>
+      <b>User ID:</b>
+      <span th:text="${claim.user.id}"></span>
+    </p>
+
+    <a th:href="@{/claim/{id}/approve(id=${claim.id}, itemId=${item.id})}">
+      Approve
+    </a>
+
+    |
+    <a th:href="@{/claim/{id}/reject(id=${claim.id}, itemId=${item.id})}">
+      Reject
+    </a>
+
+    <hr/>
+  </li>
+</ul>
+
+<a th:href="@{/claim/{id}(id=${item.id})}">Make a Claim</a>
+
+</body>
+</html>
