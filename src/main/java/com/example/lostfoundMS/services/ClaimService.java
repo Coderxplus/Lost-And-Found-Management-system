@@ -1,7 +1,7 @@
 package com.example.lostfoundMS.services;
 
 import com.example.lostfoundMS.entities.*;
-import com.example.lostfoundMS.repo.ClaimRepo;
+import com.example.lostfoundMS.repo.ClaimRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,14 +9,14 @@ import java.util.List;
 @Service
 public class ClaimService {
 
-    private final ClaimRepo claimRepository;
+    private final ClaimRepository claimRepository;
 
-    public ClaimService(ClaimRepo claimRepository) {
+    public ClaimService(ClaimRepository claimRepository) {
         this.claimRepository = claimRepository;
     }
 
     public Claim createClaim(String message, User user, Item item) {
-        Claim claim = new Claim(message, user, item);
+        Claim claim = new Claim();
         return claimRepository.save(claim);
     }
 

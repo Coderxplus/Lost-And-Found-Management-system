@@ -4,86 +4,64 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "claims")
 public class Claim {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String message; // user explains why it's theirs
+    @ManyToOne
+    @JoinColumn(name = "item_id", nullable = false)
+    private Item item;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+    // who is making this claim
+
+    @Column(nullable = false, length = 1000)
+    private String proofDescription;
 
     @Enumerated(EnumType.STRING)
-    private ClaimStatus status; // PENDING, APPROVED, REJECTED
+    @Column(nullable = false)
+    private ClaimStatus status;
 
+    @Column(length = 500)
+    private String adminNote;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    // The person making the claim
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    // The item being claimed
-    @ManyToOne
-    @JoinColumn(name = "item_id")
-    private Item item;
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.status = ClaimStatus.PENDING;
+    }
 
     public Claim() {}
 
-    public Claim(String message, User user, Item item) {
-        this.message = message;
-        this.user = user;
-        this.item = item;
-        this.status = ClaimStatus.PENDING;
-        this.createdAt = LocalDateTime.now();
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Item getItem() { return item; }
+    public void setItem(Item item) { this.item = item; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
+    public String getProofDescription() { return proofDescription; }
+    public void setProofDescription(String proofDescription) {
+        this.proofDescription = proofDescription;
     }
 
-    public Long getId() {
-        return id;
-    }
+    public ClaimStatus getStatus() { return status; }
+    public void setStatus(ClaimStatus status) { this.status = status; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getAdminNote() { return adminNote; }
+    public void setAdminNote(String adminNote) { this.adminNote = adminNote; }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public ClaimStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ClaimStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Item getItem() {
-        return item;
-    }
-
-    public void setItem(Item item) {
-        this.item = item;
-    }
-
-    // getters and setters
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

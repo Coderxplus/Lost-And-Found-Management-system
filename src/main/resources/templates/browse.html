@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Findr - Browse Items</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'findr-primary': '#0D5C4A',
+                        'findr-accent': '#F5A623',
+                        'findr-surface': '#F7F8F6',
+                        'findr-text': '#1A1A1A',
+                        'findr-muted': '#6B7280',
+                        'findr-border': '#E5E7EB',
+                    },
+                    fontFamily: {
+                        'poppins': ['Poppins', 'sans-serif'],
+                        'roboto': ['Roboto', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'card': '12px',
+                        'btn': '8px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .card-hover {
+            transition: all 0.2s ease;
+        }
+        .card-hover:hover {
+            border-color: #0D5C4A !important;
+            transform: translateY(-2px);
+        }
+        .filter-active {
+            background-color: #0D5C4A;
+            color: white;
+        }
+    </style>
+</head>
+<body class="font-roboto text-findr-text bg-white">
+
+<!-- ========== STICKY NAVBAR ========== -->
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="font-poppins font-bold text-3xl text-findr-text">Browse Items</h1>
+        <p class="text-findr-muted mt-1">Find lost belongings or discover what's been found</p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="flex gap-2 border-b border-findr-border mb-6">
+        <button data-filter="all" class="filter-tab px-6 py-2 font-semibold rounded-t-lg transition-all data-[active=true]:bg-findr-primary data-[active=true]:text-white data-[active=false]:text-findr-muted hover:text-findr-primary">All</button>
+        <button data-filter="LOST" class="filter-tab px-6 py-2 font-semibold rounded-t-lg transition-all data-[active=true]:bg-findr-primary data-[active=true]:text-white data-[active=false]:text-findr-muted hover:text-findr-primary">Lost</button>
+        <button data-filter="FOUND" class="filter-tab px-6 py-2 font-semibold rounded-t-lg transition-all data-[active=true]:bg-findr-primary data-[active=true]:text-white data-[active=false]:text-findr-muted hover:text-findr-primary">Found</button>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Sidebar Filters -->
+        <div class="lg:w-64 shrink-0">
+            <div class="bg-findr-surface rounded-card p-5 sticky top-20">
+                <h3 class="font-poppins font-semibold text-lg mb-4">Categories</h3>
+                <div class="space-y-2" id="categoryFilters">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" value="Electronics" class="category-checkbox rounded border-findr-border text-findr-primary focus:ring-findr-primary">
+                        <span class="text-sm text-findr-text">Electronics</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" value="Bag" class="category-checkbox rounded border-findr-border text-findr-primary focus:ring-findr-primary">
+                        <span class="text-sm text-findr-text">Bags</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" value="ID Card" class="category-checkbox rounded border-findr-border text-findr-primary focus:ring-findr-primary">
+                        <span class="text-sm text-findr-text">ID Cards</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" value="Keys" class="category-checkbox rounded border-findr-border text-findr-primary focus:ring-findr-primary">
+                        <span class="text-sm text-findr-text">Keys</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" value="Clothing" class="category-checkbox rounded border-findr-border text-findr-primary focus:ring-findr-primary">
+                        <span class="text-sm text-findr-text">Clothing</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" value="Other" class="category-checkbox rounded border-findr-border text-findr-primary focus:ring-findr-primary">
+                        <span class="text-sm text-findr-text">Other</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Grid -->
+        <div class="flex-1">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="itemsGrid">
+                <!-- Cards will be populated here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-16">
+                <div class="text-6xl mb-4">🔍</div>
+                <h3 class="font-poppins font-semibold text-xl text-findr-text mb-2">No items found</h3>
+                <p class="text-findr-muted">Try adjusting your search or filters</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Sample data (this would come from backend)
+    const itemsData = [
+        { id: 1, name: "iPhone 14 Pro", category: "Electronics", type: "FOUND", location: "Library", date: "2024-01-15", status: "OPEN", description: "Found on 3rd floor near study carrels" },
+        { id: 2, name: "Black Laptop Bag", category: "Bag", type: "FOUND", location: "Student Union", date: "2024-01-12", status: "OPEN", description: "Dell laptop inside, has stickers" },
+        { id: 3, name: "Student ID Card", category: "ID Card", type: "FOUND", location: "Gym", date: "2024-01-16", status: "CLAIMED", description: "Name: Sarah Johnson, Class of 2026" },
+        { id: 4, name: "AirPods Case", category: "Electronics", type: "FOUND", location: "Cafeteria", date: "2024-01-14", status: "OPEN", description: "White case with a scratch on back" },
+        { id: 5, name: "MacBook Pro", category: "Electronics", type: "LOST", location: "Library", date: "2024-01-10", status: "OPEN", description: "Space gray, has a sticker of a cat" },
+        { id: 6, name: "Water Bottle", category: "Other", type: "FOUND", location: "Gym", date: "2024-01-13", status: "OPEN", description: "Blue Hydro Flask" },
+        { id: 7, name: "House Keys", category: "Keys", type: "LOST", location: "Parking Lot", date: "2024-01-11", status: "OPEN", description: "Red keychain with a small flashlight" },
+        { id: 8, name: "Jacket", category: "Clothing", type: "FOUND", location: "Student Union", date: "2024-01-09", status: "CLAIMED", description: "Black North Face jacket" },
+    ];
+
+    let currentTypeFilter = "all";
+    let currentSearch = "";
+    let currentCategories = [];
+
+    function getCategoryColor(category) {
+        const colors = {
+            'Electronics': 'bg-blue-100 text-blue-700',
+            'Bag': 'bg-amber-100 text-amber-700',
+            'ID Card': 'bg-purple-100 text-purple-700',
+            'Keys': 'bg-teal-100 text-teal-700',
+            'Clothing': 'bg-pink-100 text-pink-700',
+            'Other': 'bg-gray-100 text-gray-700'
+        };
+        return colors[category] || 'bg-gray-100 text-gray-700';
+    }
+
+    function getTypeBadge(type) {
+        if (type === 'LOST') {
+            return '<span class="text-xs font-semibold px-2 py-1 rounded-full bg-red-100 text-red-700">⚠️ LOST</span>';
+        }
+        return '<span class="text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">✓ FOUND</span>';
+    }
+
+    function getStatusBadge(status) {
+        if (status === 'OPEN') {
+            return '<span class="text-xs font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-700">Open</span>';
+        }
+        return '<span class="text-xs font-semibold px-2 py-1 rounded-full bg-gray-100 text-gray-700">Claimed</span>';
+    }
+
+    function filterItems() {
+        return itemsData.filter(item => {
+            // Type filter
+            if (currentTypeFilter !== "all" && item.type !== currentTypeFilter) return false;
+
+            // Search filter
+            if (currentSearch && !item.name.toLowerCase().includes(currentSearch.toLowerCase()) &&
+                !item.description.toLowerCase().includes(currentSearch.toLowerCase())) return false;
+
+            // Category filter
+            if (currentCategories.length > 0 && !currentCategories.includes(item.category)) return false;
+
+            return true;
+        });
+    }
+
+    function renderItems() {
+        const filtered = filterItems();
+        const grid = document.getElementById('itemsGrid');
+        const emptyState = document.getElementById('emptyState');
+
+        if (filtered.length === 0) {
+            grid.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            return;
+        }
+
+        grid.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+
+        grid.innerHTML = filtered.map(item => `
+            <a href="/item/${item.id}" class="block bg-white border border-findr-border rounded-card p-4 card-hover">
+                <div class="h-32 bg-gray-100 rounded-card mb-3 flex items-center justify-center text-4xl">
+                    ${item.category === 'Electronics' ? '📱' : item.category === 'Bag' ? '🎒' : item.category === 'ID Card' ? '🪪' : item.category === 'Keys' ? '🔑' : item.category === 'Clothing' ? '👕' : '📦'}
+                </div>
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${getCategoryColor(item.category)}">${item.category}</span>
+                        ${getTypeBadge(item.type)}
+                    </div>
+                    ${getStatusBadge(item.status)}
+                </div>
+                <h3 class="font-poppins font-semibold text-lg mb-1">${item.name}</h3>
+                <p class="text-findr-muted text-sm mb-2 line-clamp-2">${item.description}</p>
+                <div class="flex items-center justify-between text-xs text-findr-muted">
+                    <span>📍 ${item.location}</span>
+                    <span>📅 ${item.date}</span>
+                </div>
+            </a>
+        `).join('');
+    }
+
+    // Event Listeners
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.filter-tab').forEach(t => {
+                t.setAttribute('data-active', 'false');
+                t.classList.remove('bg-findr-primary', 'text-white');
+                t.classList.add('text-findr-muted');
+            });
+            tab.setAttribute('data-active', 'true');
+            tab.classList.add('bg-findr-primary', 'text-white');
+            tab.classList.remove('text-findr-muted');
+            currentTypeFilter = tab.getAttribute('data-filter');
+            renderItems();
+        });
+        tab.setAttribute('data-active', tab.getAttribute('data-filter') === 'all' ? 'true' : 'false');
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        currentSearch = e.target.value;
+        renderItems();
+    });
+
+    document.querySelectorAll('.category-checkbox').forEach(cb => {
+        cb.addEventListener('change', () => {
+            currentCategories = Array.from(document.querySelectorAll('.category-checkbox:checked'))
+                .map(c => c.value);
+            renderItems();
+        });
+    });
+
+    // Set first tab as active
+    document.querySelector('.filter-tab[data-filter="all"]').click();
+    renderItems();
+</script>
+
+<!-- Footer -->
+<footer class="bg-findr-surface border-t border-findr-border py-12 px-4 mt-12">
+    <div class="max-w-7xl mx-auto text-center text-findr-muted text-sm">
+        <p>&copy; 2024 Findr. All rights reserved. Made with love for our campus community.</p>
+    </div>
+</footer>
+
+</body>
+</html>

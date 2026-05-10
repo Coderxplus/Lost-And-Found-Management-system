@@ -3,20 +3,30 @@ package com.example.lostfoundMS.entities;
 import jakarta.persistence.*;
 import java.util.List;
 
-
-import jakarta.persistence.*;
-import java.util.List;
-
 @Entity
+@Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(nullable = false)
+    private String fullName;
+
+    @Column(nullable = false, unique = true)
+    private String universityId;
+
+    @Transient
+    private String confirmPassword;
+
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     // One user can post many items
     @OneToMany(mappedBy = "user")
@@ -25,7 +35,7 @@ public class User {
     public User() {}
 
     public User(String name, String email, String password) {
-        this.name = name;
+        this.fullName = name;
         this.email = email;
         this.password = password;
     }
@@ -38,20 +48,20 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public List<Item> getItems() {
+        return items;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setItems(List<Item> items) {
+        this.items = items;
     }
 
-    public String getEmail() {
-        return email;
+    public Role getRole() {
+        return role;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public String getPassword() {
@@ -62,13 +72,35 @@ public class User {
         this.password = password;
     }
 
-    public List<Item> getItems() {
-        return items;
+    public String getEmail() {
+        return email;
     }
 
-    public void setItems(List<Item> items) {
-        this.items = items;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    // getters and setters
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String name) {
+        this.fullName = name;
+    }
+
+    public String getUniversityId() {
+        return universityId;
+    }
+
+    public void setUniversityId(String universityId) {
+        this.universityId = universityId;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
 }
